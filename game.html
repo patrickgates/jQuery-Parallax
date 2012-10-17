@@ -1,0 +1,151 @@
+
+<html>
+  <head>
+    <style type="text/css">
+      body {
+        overflow: hidden;
+      }
+
+      .box {
+        width: 150px;
+        height: 150px;
+        display: none;
+        position: absolute;
+        background-color: #000000;
+        top: 50%;
+        margin-top: -75px;
+      }
+
+      #speeder {
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        left: 50%;
+        top: 50%;
+        margin-left: -25px;
+        margin-top: -25px;
+        background-color: #ff0000;
+        z-index: 100;
+      }
+    </style>
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js" type="text/javascript"></script>
+    <script type="text/javascript" src="jquery.parallax.js"></script>
+    <script tyle="text/javascript">
+      //Game Variables
+      var speed = 0.5; //Between 0 and 1
+      var length = 30; //in seconds
+      var movementThreshold = 10; //in pixels
+      var blocks = 5;
+
+      //Function to determine overlap
+      function valueInRange(value, min, max) {
+        return (value >= min) && (value <= max);
+      }
+
+      $(document).ready(function() {
+        //Alert Greeting
+        alert("You are the red square, and you must use the left and right arrows to avoid the incoming black squares. See if you can make it " + length + " seconds without getting hit.\nGood luck!");
+
+        //Global variables
+        var leftDown = false;
+        var rightDown = false;
+        var speeder = $("#speeder").position();
+        var lost;
+        var i = 0;
+
+        //Add keypress
+        $('body').keydown(function(e) {
+          if (e.keyCode == 39)
+            leftDown = true;
+
+          if (e.keyCode == 37)
+            rightDown = true;
+        }).keyup(function(e) {
+          if (e.keyCode == 39)
+            leftDown = false;
+
+          if (e.keyCode == 37)
+            rightDown = false;
+        });
+
+        //Initiate function
+        $.parallax();
+
+        //Add blocks
+        for (a = 0; a <= blocks; a++) {
+          $('body').append('<div id="' + a + '" class="box"></div>');
+        }
+
+        //Activate each box
+        $(".box").each(function() {
+          $(this).parallax();
+        });
+
+        var interval = window.setInterval(function() {
+          //If a box has already been added
+          var set = false;
+
+          //Move boxes
+          $(".box").each(function() {
+            //Add box and set position randomly
+            if (((i % (30/blocks)) == 0) && ($(this).css("display") === "none") && (set === false)) {
+              var randLeft = Math.floor(Math.random() * $(window).width());
+
+              $(this).css("display", "block").parallaxCSS({"depth": 0.1}).css("left", randLeft);
+
+              set = true;
+            }
+
+            //Increment depth
+            if ($(this).css("display") === "block")
+              $(this).parallaxCSS({depth: "+=" + (speed / 0.5)/100});
+
+            //Move if key is down
+            if (rightDown)
+              $(this).parallaxCSS({"left": "-=" + movementThreshold});
+
+            if (leftDown)
+              $(this).parallaxCSS({"left": "+=" + movementThreshold});
+
+            //Reset those at 1 and check if it hit your speeder
+            if ($(this).parallaxCSS("depth") >= 1) {
+              var pos = $(this).position();
+
+              if(valueInRange(speeder.left, pos.left, pos.left + 150) || valueInRange(pos.left, speeder.left, speeder.left + 50)) {
+                window.clearInterval(interval);
+
+                lost = true;
+              }
+
+              $(this).css("display", "none");
+            }
+          });
+
+          //Reset set
+          set = false;
+
+          //Increment and check if over
+          if (i === (length * 30)) {
+            window.clearInterval(interval);
+            lost = false;
+          }
+
+          i += 1;
+
+          //Alert result
+          if (lost === true) {
+            alert("You Lost, better luck next time.\nReload to try again.");
+          } else if (lost === false) {
+            alert("CONGRATULATIONS, you made it!\nReload to play again.");
+          }
+        }, 1000/30); //1000 milliseconds / 30 frames per second
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="speeder"></div>
+  </body>
+</html>
+
