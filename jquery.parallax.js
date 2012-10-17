@@ -184,7 +184,7 @@
     //if window or document
     if (this.selector == "parallaxAll") {
       $.each($.divs, function() {
-        topLeft.call($(this[0]), type, position);
+        topLeft.call($("#" + this[0]), type, position);
       });
     } else {
       //Determine operator
@@ -192,7 +192,7 @@
 
       //Determine destination based on operator
       var destination;
-      var select = $(this);
+      var select = this;
       var widthOrHeight = (type === "left") ? select.width() : select.height();
       var pos = select.position();
       var posLeftOrRight = (type === "left") ? pos.left : pos.top;
@@ -232,6 +232,14 @@
     //Set defaults
     if (typeof depth === 'undefined')
       depth = 0;
+
+    //Determine operator
+    var opObject = parseOperator(depth);
+
+    if (opObject.operator === "+=")
+      depth = parseFloat($(this).parallaxCSS("depth")) + opObject.position;
+    if (opObject.operator === "-=")
+      depth = parseFloat($(this).parallaxCSS("depth")) - opObject.position;
 
     //  Remove any old visual effects
     var css = this.attr("style");

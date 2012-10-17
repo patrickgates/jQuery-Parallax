@@ -42,7 +42,7 @@
         $(window).mousemove(function(event) {
           var pos = $("#container").position();
 
-          $(this).parallaxCSS({left: event.pageX - pos.left, top: event.pageY - pos.top});
+          $("parallaxAll").parallaxCSS({left: event.pageX - pos.left, top: event.pageY - pos.top});
         });
       });
     </script>
